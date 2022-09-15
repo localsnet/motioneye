@@ -1028,6 +1028,8 @@ function addVideoControl(name, min, max, step) {
     });
 
     title = title.substr(0, 1).toUpperCase() + title.substr(1);
+    /* translate name. See l10n/v4l2.js for original texts */
+    title = i18n.gettext(title);
 
     controlLabel.text(title);
 
@@ -1786,7 +1788,8 @@ function savePrefs() {
 function mainUi2Dict() {
     var dict = {
         'admin_username': $('#adminUsernameEntry').val(),
-        'normal_username': $('#normalUsernameEntry').val()
+        'normal_username': $('#normalUsernameEntry').val(),
+        'lang': $('#langSelect').val()
     };
 
     if (adminPasswordChanged.change && adminPasswordChanged.keydown && $('#adminPasswordEntry').val() !== '*****') {
@@ -1855,6 +1858,7 @@ function dict2MainUi(dict) {
         }
     }
 
+    $('#langSelect').val(dict['lang']);
     $('#adminUsernameEntry').val(dict['admin_username']); markHideIfNull('admin_username', 'adminUsernameEntry');
     $('#adminPasswordEntry').val(dict['admin_password']); markHideIfNull('admin_password', 'adminPasswordEntry');
     $('#normalUsernameEntry').val(dict['normal_username']); markHideIfNull('normal_username', 'normalUsernameEntry');

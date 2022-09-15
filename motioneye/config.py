@@ -795,9 +795,17 @@ def main_ui_to_dict(ui):
         call_hook(ui['admin_username'], ui['admin_password'])
 
     if ui.get('normal_password') is not None:
-        data['@normal_password'] = ui['normal_password']
+        if ui['normal_password']:
+            data['@normal_password'] = hashlib.sha1(
+                ui['normal_password'].encode('utf-8')
+            ).hexdigest()
+        else:
+            data['@normal_password'] = ''
 
         call_hook(ui['normal_username'], ui['normal_password'])
+
+    if ui.get('lang') is not None:
+        data['@lang'] = ui['lang']
 
     # additional configs
     for name, value in list(ui.items()):
@@ -814,6 +822,9 @@ def main_dict_to_ui(data):
         'admin_username': data['@admin_username'],
         'normal_username': data['@normal_username'],
     }
+
+    if data['@lang']:
+        ui['lang'] = data['@lang']
 
     # don't transmit password (or its hash) to the client;
     # instead transmit an indication of password being set
@@ -893,6 +904,7 @@ def motion_camera_ui_to_dict(ui, prev_config=None):
         'stream_authentication': main_config['@normal_username']
         + ':'
         + main_config['@normal_password'],
+        '@lang': main_config['@lang'],
         # still images
         'picture_output': False,
         'snapshot_interval': 0,
@@ -1966,7 +1978,7 @@ def restore(content):
             def later():
                 PowerControl.reboot()
 
-            io_loop = IOLoop.instance()
+            io_loop = IOLoop.current()
             io_loop.add_timeout(datetime.timedelta(seconds=2), later)
 
         else:
@@ -2175,6 +2187,7 @@ def _set_default_motion(data):
     data.setdefault('@admin_password', '')
     data.setdefault('@normal_username', 'user')
     data.setdefault('@normal_password', '')
+    data.setdefault('@lang', 'en')
 
     data.setdefault('setup_mode', False)
     data.setdefault('webcontrol_port', settings.MOTION_CONTROL_PORT)
